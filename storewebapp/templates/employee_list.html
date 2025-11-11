@@ -1,0 +1,34 @@
+<!-- storewebapp/templates/storewebapp/employee_list.html -->
+{% extends 'base.html' %}
+{% block title %}Employees{% endblock %}
+{% block content %}
+<h2>Employees</h2>
+<a class="btn btn-success mb-2" href="{% url 'employee_create' %}">Add Employee</a>
+<table class="table table-striped table-bordered">
+  <thead class="table-dark">
+    <tr>
+      <th>Name</th>
+      <th>Contact</th>
+      <th>Role</th>
+      <th>Shift</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for e in employees %}
+      <tr>
+        <td>{{ e.name }}</td>
+        <td>{{ e.contact }}</td>
+        <td>{{ e.role }}</td>
+        <td>{{ e.shift }}</td>
+        <td>
+          <a class="btn btn-sm btn-primary" href="{% url 'employee_update' e.pk %}">Edit</a>
+          <a class="btn btn-sm btn-danger" href="{% url 'employee_delete' e.pk %}">Delete</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5">No employees yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

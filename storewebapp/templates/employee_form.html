@@ -1,0 +1,12 @@
+<!-- storewebapp/templates/storewebapp/employee_form.html -->
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h2>{{ title }}</h2>
+<form method="post" class="col-md-6">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button class="btn btn-primary" type="submit">Save</button>
+  <a href="{% url 'employee_list' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}
