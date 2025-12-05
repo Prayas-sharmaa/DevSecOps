@@ -1,11 +1,36 @@
-<!-- storewebapp/templates/storewebapp/employee_form.html -->
 {% extends 'base.html' %}
 {% block title %}{{ title }}{% endblock %}
+
 {% block content %}
 <h2>{{ title }}</h2>
-<form method="post" class="col-md-6">
+
+{% if messages %}
+  {% for m in messages %}
+    <div class="alert alert-{{ m.tags }}">{{ m }}</div>
+  {% endfor %}
+{% endif %}
+
+<form method="post" class="col-md-6 needs-validation" novalidate>
   {% csrf_token %}
-  {{ form.as_p }}
+
+  {% for field in form %}
+    <div class="mb-3">
+      <label class="form-label">{{ field.label }}</label>
+      {{ field }}
+      {% if field.errors %}
+        <div class="text-danger small">
+          {{ field.errors|striptags }}
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+
+  {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+        {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
   <button class="btn btn-primary" type="submit">Save</button>
   <a href="{% url 'employee_list' %}" class="btn btn-secondary">Cancel</a>
 </form>

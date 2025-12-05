@@ -1,11 +1,17 @@
-<!-- storewebapp/templates/storewebapp/login.html -->
 {% extends 'base.html' %}
 {% block title %}Login{% endblock %}
+
 {% block content %}
-<h2>Login</h2>
-<form method="post" class="col-md-4">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button class="btn btn-primary" type="submit">Login</button>
-</form>
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+  <div class="card shadow-lg p-4" style="width: 100%; max-width: 400px;">
+    <h3 class="text-center mb-3 text-primary">Login to StoreWebApp</h3>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="d-grid">
+        <button class="btn btn-primary" type="submit">Login</button>
+      </div>
+    </form>
+  </div>
+</div>
 {% endblock %}

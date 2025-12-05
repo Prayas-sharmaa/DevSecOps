@@ -18,10 +18,14 @@ def employee_create(request):
         form = EmployeeForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, "Employee added successfully!")
             return redirect('employee_list')
+        else:
+            messages.error(request, "Please fix the errors below.")
     else:
         form = EmployeeForm()
     return render(request, 'employee_form.html', {'form': form, 'title': 'Add Employee'})
+
     
 def employee_update(request, id):
     emp = get_object_or_404(Employee, id=id)
@@ -29,10 +33,14 @@ def employee_update(request, id):
         form = EmployeeForm(request.POST, instance=emp)
         if form.is_valid():
             form.save()
+            messages.success(request, "Employee updated successfully!")
             return redirect('employee_list')
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
         form = EmployeeForm(instance=emp)
     return render(request, 'employee_form.html', {'form': form, 'title': 'Edit Employee'})
+
 
 def employee_delete(request, id):
     emp = get_object_or_404(Employee, id=id)
