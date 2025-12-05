@@ -35,3 +35,17 @@ Thumbs.db
 
 # Environment variables
 .env
+
+# Terraform
+.terraform/
+terraform/.terraform/
+*.tfstate
+*.tfstate.*
+.crash
+*.log
+.terraform.lock.hcl
+
+# Local files
+*.backup
+terraform.tfvars
+terraform.tfvars.json
