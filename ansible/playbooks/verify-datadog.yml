@@ -1,0 +1,5 @@
+---
+- hosts: eb_instances
+  tasks:
+    - name: Check datadog agent
+      command: datadog-agent status

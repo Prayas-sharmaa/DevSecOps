@@ -1,0 +1,5 @@
+---
+- hosts: eb_instances
+  become: yes
+  roles:
+    - datadog
