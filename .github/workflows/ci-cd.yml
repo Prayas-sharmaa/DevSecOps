@@ -102,4 +102,4 @@ jobs:
 
       - name: Terraform skipped (EB already deployed)
         if: steps.ebe_check.outputs.exists == 'true'
-        run: echo "Elastic Beanstalk already deployed — skipping Terraform."
+        run: echo "Elastic Beanstalk already deployed — skipping Terraform." 
