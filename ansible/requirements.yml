@@ -1,1 +1,2 @@
-- src: datadog.datadog
+roles:
+  - src: datadog.datadog
