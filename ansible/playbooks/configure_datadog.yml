@@ -1,0 +1,10 @@
+---
+- name: Configure Datadog Agent on Elastic Beanstalk EC2
+  hosts: eb_instances
+  become: yes
+
+  vars:
+    datadog_api_key: "{{ lookup('env', 'DATADOG_API_KEY') }}"
+
+  roles:
+    - datadog

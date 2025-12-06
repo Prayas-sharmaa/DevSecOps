@@ -1,5 +1,0 @@
----
-- name: Install Datadog agent
-  yum:
-    name: datadog-agent
-    state: present
