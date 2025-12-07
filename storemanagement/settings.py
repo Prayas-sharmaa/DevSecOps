@@ -124,7 +124,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://56790f4afa214d059c23abfca5847aa3.vfs.cloud9.us-east-1.amazonaws.com'
+    'https://5092a8e01f0c47de902f958b2ec1f351.vfs.cloud9.us-east-1.amazonaws.com'
 ]
 
 LOGIN_REDIRECT_URL = '/employees/'
