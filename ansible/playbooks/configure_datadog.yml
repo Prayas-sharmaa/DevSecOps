@@ -1,29 +1,30 @@
 ---
 - name: Configure Datadog Agent on Elastic Beanstalk EC2 instances
-  hosts: eb_instances
+  hosts: eb
+  gather_facts: yes
+  connection: amazon.aws.aws_ssm
   become: yes
+
 
   vars:
     datadog_api_key: "{{ lookup('env', 'DATADOG_API_KEY') }}"
-    datadog_site: "datadoghq.com"
 
-  roles:
-    - datadog.datadog
+  tasks:
+    - name: Install Datadog Agent
+      ansible.builtin.shell: |
+        sudo yum install -y datadog-agent
+      become: yes
 
-  vars:
-    datadog_config:
-      logs_enabled: true
-      process_config:
-        enabled: "true"
+    - name: Configure Datadog API key
+      ansible.builtin.lineinfile:
+        path: /etc/datadog-agent/datadog.yaml
+        regexp: '^api_key:'
+        line: "api_key: {{ datadog_api_key }}"
+      become: yes
 
-    datadog_agent_major_version: 7
-
-    datadog_checks:
-      system_core:
-        init_config:
-        instances:
-          - {}
-
-    datadog_additional_groups:
-      - adm
-      - syslog
+    - name: Restart Datadog Agent
+      ansible.builtin.systemd:
+        name: datadog-agent
+        state: restarted
+        enabled: yes
+      become: yes
