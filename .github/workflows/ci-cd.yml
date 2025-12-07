@@ -126,20 +126,18 @@ jobs:
 
       - name: Create Dockerrun.aws.json
         run: |
-          cat > Dockerrun.aws.json <<EOF
-{
-  "AWSEBDockerrunVersion": "1",
-  "Image": {
-    "Name": "${DOCKERHUB_IMAGE}",
-    "Update": "true"
-  },
-  "Ports": [
-    {
-      "ContainerPort": "8000"
-    }
-  ]
-}
-EOF
+          echo '{
+            "AWSEBDockerrunVersion": "1",
+            "Image": {
+              "Name": "'"${DOCKERHUB_IMAGE}"'",
+              "Update": "true"
+            },
+            "Ports": [
+              {
+                "ContainerPort": "8000"
+              }
+            ]
+          }' > Dockerrun.aws.json
 
       - name: Deploy to Elastic Beanstalk
         run: |
