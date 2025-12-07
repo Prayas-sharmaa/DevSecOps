@@ -5,32 +5,23 @@ from django.contrib import messages
 from .models import Employee
 from .forms import EmployeeForm
  
-# Create your views here.
- 
 def home(request):
     return redirect('employee_list')
  
-# To perform CRUD operations
- 
 def employee_list(request):
-    # Get all employees (query is not executed yet - it's lazy)
-    employees_query = Employee.objects.all().order_by('-id')
-    # Create paginator - show 25 employees per page
-    paginator = Paginator(employees_query, 25)
-    # Get the page number from URL (e.g., ?page=2)
-    page_number = request.GET.get('page', 1)
-    try:
-        page_obj = paginator.page(page_number)
-    except PageNotAnInteger:
-        # If page is not an integer, deliver first page
-        page_obj = paginator.page(1)
-    except EmptyPage:
-        # If page is out of range, deliver last page
-        page_obj = paginator.page(paginator.num_pages)
+    # TEMPORARY: Test with hardcoded data (no database query)
+    hardcoded_employees = [
+        {'id': 1, 'name': 'John Doe', 'email': 'john@example.com', 'position': 'Manager', 'department': 'IT'},
+        {'id': 2, 'name': 'Jane Smith', 'email': 'jane@example.com', 'position': 'Developer', 'department': 'IT'},
+        {'id': 3, 'name': 'Bob Johnson', 'email': 'bob@example.com', 'position': 'Designer', 'department': 'Design'},
+    ]
+    # Use hardcoded data instead of database
+    page_obj = None
+    total_employees = len(hardcoded_employees)
     context = {
-        'page_obj': page_obj,
-        'employees': page_obj.object_list,  # Current page employees
-        'total_employees': paginator.count,
+        'page_obj': None,
+        'employees': hardcoded_employees,
+        'total_employees': total_employees,
     }
     return render(request, 'employee_list.html', context)
  
