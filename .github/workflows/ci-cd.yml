@@ -86,9 +86,9 @@ jobs:
           if aws elasticbeanstalk describe-environments \
               --region $AWS_REGION \
               --environment-names "storemanagement-env" >/dev/null 2>&1; then
-            echo "exists=true" >> $GITHUB_OUTPUT
+              echo "exists=true" >> $GITHUB_OUTPUT
           else
-            echo "exists=false" >> $GITHUB_OUTPUT
+              echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Apply Terraform (deploy only once)
@@ -143,6 +143,6 @@ EOF
 
       - name: Deploy to Elastic Beanstalk
         run: |
-          eb init $EB_APP_NAME --region $AWS_REGION --platform docker
+          eb init $EB_APP_NAME --region $AWS_REGION
           eb use $EB_ENV_NAME
           eb deploy
