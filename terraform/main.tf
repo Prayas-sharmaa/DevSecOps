@@ -1,5 +1,4 @@
 
-
 resource "aws_elastic_beanstalk_application" "store_app" {
   name        = "store-management-app"
   description = "Store management web app"
