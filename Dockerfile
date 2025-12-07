@@ -40,4 +40,4 @@ EXPOSE 8000
 # ===========================
 # 8. Run Gunicorn WSGI server
 # ===========================
-CMD ["gunicorn", "storemanagement.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "storemanagement.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4", "--threads", "4", "--timeout", "300"]
