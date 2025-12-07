@@ -8,6 +8,9 @@ on:
 
 jobs:
 
+  # --------------------------
+  # 1️⃣ SonarCloud Analysis
+  # --------------------------
   sonar-cloud-build:
     runs-on: ubuntu-latest
     steps:
@@ -23,6 +26,9 @@ jobs:
             -Dsonar.projectKey=Prayas-sharmaa_DevSecOps
             -Dsonar.organization=prayas-sharmaa
 
+  # --------------------------
+  # 2️⃣ Python Build & Test
+  # --------------------------
   python-build:
     runs-on: ubuntu-latest
     needs: sonar-cloud-build
@@ -45,6 +51,9 @@ jobs:
       - name: Run Tests
         run: python manage.py test
 
+  # --------------------------
+  # 3️⃣ Docker Build & Push
+  # --------------------------
   docker-build:
     runs-on: ubuntu-latest
     needs: python-build
@@ -65,7 +74,10 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/storemanagement:latest
 
-  Infrastructure:
+  # --------------------------
+  # 4️⃣ Terraform Infrastructure
+  # --------------------------
+  infrastructure:
     runs-on: ubuntu-latest
     needs: docker-build
     env:
@@ -80,19 +92,7 @@ jobs:
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Check EB environment
-        id: ebe_check
-        run: |
-          if aws elasticbeanstalk describe-environments \
-              --region $AWS_REGION \
-              --environment-names "storemanagement-env" >/dev/null 2>&1; then
-              echo "exists=true" >> $GITHUB_OUTPUT
-          else
-              echo "exists=false" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Apply Terraform (deploy only once)
-        if: steps.ebe_check.outputs.exists == 'false'
+      - name: Terraform Init & Apply
         run: |
           cd terraform
           terraform init
@@ -100,29 +100,24 @@ jobs:
           terraform plan -out=tfplan
           terraform apply -auto-approve tfplan
 
-      - name: Terraform skipped
-        if: steps.ebe_check.outputs.exists == 'true'
-        run: echo "Elastic Beanstalk already deployed — skipping Terraform."
-
+  # --------------------------
+  # 5️⃣ Deploy Docker to EB
+  # --------------------------
   deploy-to-eb:
     runs-on: ubuntu-latest
-    needs: Infrastructure
+    needs: infrastructure
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
       AWS_REGION: us-east-1
-      EB_APP_NAME: "storemanagement-app"
-      EB_ENV_NAME: "storemanagement-env"
+      EB_APP_NAME: "store-management-app"
+      EB_ENV_NAME: "store-management-env"
       DOCKERHUB_IMAGE: "${{ secrets.DOCKERHUB_USERNAME }}/storemanagement:latest"
+      S3_BUCKET: "your-eb-bucket"  # Replace with your S3 bucket
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Install EB CLI
-        run: |
-          python -m pip install --upgrade pip
-          pip install awsebcli
 
       - name: Create Dockerrun.aws.json
         run: |
@@ -139,17 +134,19 @@ jobs:
             ]
           }' > Dockerrun.aws.json
 
-      - name: Deploy to Elastic Beanstalk
+      - name: Upload Dockerrun to S3
         run: |
-          eb deploy $EB_ENV_NAME
-      - name: Initialize EB CLI
+          aws s3 cp Dockerrun.aws.json s3://${S3_BUCKET}/Dockerrun-${GITHUB_SHA}.json
+
+      - name: Create new EB application version
         run: |
-          eb init $EB_APP_NAME \
-            --region $AWS_REGION \
-            --platform "64bit Amazon Linux 2023 v4.8.0 running Python 3.14" \
-            --interactive false
-  
-      - name: Deploy to Elastic Beanstalk
+          aws elasticbeanstalk create-application-version \
+            --application-name $EB_APP_NAME \
+            --version-label github-${GITHUB_SHA} \
+            --source-bundle S3Bucket="${S3_BUCKET}",S3Key="Dockerrun-${GITHUB_SHA}.json"
+
+      - name: Update EB environment
         run: |
-          eb use $EB_ENV_NAME
-          eb deploy
+          aws elasticbeanstalk update-environment \
+            --environment-name $EB_ENV_NAME \
+            --version-label github-${GITHUB_SHA}
