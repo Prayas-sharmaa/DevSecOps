@@ -142,3 +142,14 @@ jobs:
       - name: Deploy to Elastic Beanstalk
         run: |
           eb deploy $EB_ENV_NAME
+      - name: Initialize EB CLI
+        run: |
+          eb init $EB_APP_NAME \
+            --region $AWS_REGION \
+            --platform "64bit Amazon Linux 2023 v4.8.0 running Python 3.14" \
+            --interactive false
+  
+      - name: Deploy to Elastic Beanstalk
+        run: |
+          eb use $EB_ENV_NAME
+          eb deploy
