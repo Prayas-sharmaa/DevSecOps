@@ -1,1 +1,1 @@
-web: gunicorn storemanagement.wsgi:application
+web: gunicorn myproject.wsgi:application --bind 127.0.0.1:8000
