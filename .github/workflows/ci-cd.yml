@@ -1,4 +1,4 @@
-name: DevSecOps CI-CD EB
+name: DevSecOps CI/CD EB
 
 on:
   push:
@@ -78,7 +78,7 @@ jobs:
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Check EB Environment
+      - name: Check EB environment
         id: ebe_check
         run: |
           if aws elasticbeanstalk describe-environments \
@@ -95,9 +95,10 @@ jobs:
           cd terraform
           terraform init
           terraform validate
+          terraform plan -out=tfplan
           terraform apply -auto-approve
 
-      - name: Terraform Skipped
+      - name: Terraform skipped
         if: steps.ebe_check.outputs.exists == 'true'
         run: echo "Elastic Beanstalk already deployed — skipping Terraform."
 
@@ -117,8 +118,18 @@ jobs:
 
       - name: Install EB CLI
         run: |
-          python -m pip install --upgrade pip
+          pip install --upgrade pip
           pip install awsebcli
+
+      - name: Initialize EB CLI
+        run: |
+          eb init "$EB_APP_NAME" \
+            --platform "Docker" \
+            --region "$AWS_REGION" \
+            --keypair "eb-key"
+
+      - name: Use EB environment
+        run: eb use "$EB_ENV_NAME"
 
       - name: Create Dockerrun.aws.json
         run: |
@@ -137,12 +148,5 @@ jobs:
           }
           EOF
 
-      - name: Initialize EB CLI
-        run: |
-          eb init "$EB_APP_NAME" --platform "Docker" --region "$AWS_REGION" --quiet
-
-      - name: Use EB Environment
-        run: eb use "$EB_ENV_NAME"
-
-      - name: Deploy to Elastic Beanstalk
-        run: eb deploy "$EB_ENV_NAME" --staged --verbose
+      - name: Deploy Docker image to EB
+        run: eb deploy "$EB_ENV_NAME"
