@@ -1,0 +1,12 @@
+workers = 2
+threads = 4
+worker_class = "gthread"
+bind = "0.0.0.0:8000"
+timeout = 120
+graceful_timeout = 30
+keepalive = 2
+max_requests = 1000
+max_requests_jitter = 100
+accesslog = "-"
+errorlog = "-"
+loglevel = "info"
