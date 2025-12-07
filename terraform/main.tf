@@ -1,7 +1,4 @@
-resource "aws_s3_bucket" "eb_deployments" {
-  bucket = "store-management-eb-bucket" 
-  acl    = "private"
-}
+
 
 resource "aws_elastic_beanstalk_application" "store_app" {
   name        = "store-management-app"

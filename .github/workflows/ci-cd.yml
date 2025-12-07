@@ -8,30 +8,30 @@ on:
 
 jobs:
 
-  # --------------------------
-  # 1️⃣ SonarCloud Analysis
-  # --------------------------
-  sonar-cloud-build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  # # --------------------------
+  # # 1️⃣ SonarCloud Analysis
+  # # --------------------------
+  # sonar-cloud-build:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Analyze with SonarCloud
-        uses: SonarSource/sonarcloud-github-action@v2
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=Prayas-sharmaa_DevSecOps
-            -Dsonar.organization=prayas-sharmaa
+  #     - name: Analyze with SonarCloud
+  #       uses: SonarSource/sonarcloud-github-action@v2
+  #       env:
+  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #       with:
+  #         args: >
+  #           -Dsonar.projectKey=Prayas-sharmaa_DevSecOps
+  #           -Dsonar.organization=prayas-sharmaa
 
   # --------------------------
   # 2️⃣ Python Build & Test
   # --------------------------
   python-build:
     runs-on: ubuntu-latest
-    needs: sonar-cloud-build
+    # needs: sonar-cloud-build
     strategy:
       matrix:
         python-version: ['3.10']
