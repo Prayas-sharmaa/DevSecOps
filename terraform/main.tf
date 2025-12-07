@@ -10,7 +10,7 @@ resource "aws_elastic_beanstalk_environment" "store_env" {
   name                = "store-management-env"
   cname_prefix        = "storewebapp" 
   application         = aws_elastic_beanstalk_application.store_app.name
-  solution_stack_name = "64bit Amazon Linux 2023 v4.8.0 running Python 3.14"
+  solution_stack_name = "64bit Amazon Linux 2023 v4.8.0 running Docker"
     setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "IamInstanceProfile"
