@@ -29,7 +29,6 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.10']
-
     steps:
       - uses: actions/checkout@v4
 
@@ -69,13 +68,11 @@ jobs:
   Infrastructure:
     runs-on: ubuntu-latest
     needs: docker-build
-
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
       AWS_REGION: us-east-1
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -107,78 +104,29 @@ jobs:
         if: steps.ebe_check.outputs.exists == 'true'
         run: echo "Elastic Beanstalk already deployed — skipping Terraform."
 
-  eb-deploy:
+  deploy-to-eb:
     runs-on: ubuntu-latest
-    needs: docker-build
+    needs: Infrastructure
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-      AWS_REGION: "us-east-1"
-      DOCKER_IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/storemanagement:latest
-      EB_APP_NAME: "storemanagement"
+      AWS_REGION: us-east-1
+      EB_APP_NAME: "storemanagement-app"
       EB_ENV_NAME: "storemanagement-env"
-      S3_BUCKET: "eb-deployments-${{ secrets.AWS_ACCOUNT_ID }}" # Make sure this exists
-
+      DOCKERHUB_IMAGE: "${{ secrets.DOCKERHUB_USERNAME }}/storemanagement:latest"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install EB CLI
         run: |
-          sudo apt update
-          sudo apt install -y unzip zip
-
-      # Skip AWS CLI install since it is preinstalled
-      - name: Verify AWS CLI
-        run: aws --version
-
-      - name: Configure AWS CLI
-        run: |
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          aws configure set region $AWS_REGION
+          python -m pip install --upgrade pip
+          pip install awsebcli
 
       - name: Create Dockerrun.aws.json
         run: |
           echo '{
             "AWSEBDockerrunVersion": "1",
             "Image": {
-              "Name": "'"$DOCKER_IMAGE"'",
-              "Update": "true"
-            },
-            "Ports": [
-              {"ContainerPort": "8000"}
-            ]
-          }' > Dockerrun.aws.json
-
-      - name: Zip Dockerrun file
-        run: zip -r eb-deploy.zip Dockerrun.aws.json
-
-      - name: Upload to S3
-        run: |
-          aws s3 cp eb-deploy.zip s3://$S3_BUCKET/eb-deploy.zip
-
-      - name: Deploy to Elastic Beanstalk
-        run: |
-          VERSION_LABEL="v-$(date +%Y%m%d%H%M%S)"
-          aws elasticbeanstalk create-application-version \
-            --application-name "$EB_APP_NAME" \
-            --version-label "$VERSION_LABEL" \
-            --source-bundle S3Bucket="$S3_BUCKET",S3Key="eb-deploy.zip"
-
-          if aws elasticbeanstalk describe-environments \
-              --application-name "$EB_APP_NAME" \
-              --environment-names "$EB_ENV_NAME" \
-              --no-include-deleted | grep -q "$EB_ENV_NAME"; then
-              echo "Updating existing EB environment..."
-              aws elasticbeanstalk update-environment \
-                --environment-name "$EB_ENV_NAME" \
-                --version-label "$VERSION_LABEL"
-          else
-              echo "Creating new EB environment..."
-              aws elasticbeanstalk create-environment \
-                --application-name "$EB_APP_NAME" \
-                --environment-name "$EB_ENV_NAME" \
-                --version-label "$VERSION_LABEL" \
-                --solution-stack-name "64bit Amazon Linux 2 v5.7.6 running Docker"
+              "Name": "'"$DOCKERHUB_IMAGE"'"_
