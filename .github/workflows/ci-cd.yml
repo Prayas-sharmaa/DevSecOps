@@ -112,41 +112,26 @@ jobs:
       AWS_REGION: us-east-1
       EB_APP_NAME: ${{ secrets.EB_APP_NAME }}
       EB_ENV_NAME: ${{ secrets.EB_ENV_NAME }}
-      DOCKERHUB_IMAGE: "${{ secrets.DOCKERHUB_USERNAME }}/storemanagement:latest"
+  
     steps:
-      - uses: actions/checkout@v4
-
+      - name: Checkout code
+        uses: actions/checkout@v4
+  
       - name: Install EB CLI
         run: |
           pip install --upgrade pip
           pip install awsebcli
-
+  
       - name: Initialize EB CLI
         run: |
           eb init "$EB_APP_NAME" \
             --platform "Docker" \
-            --region "$AWS_REGION" \
-            --keypair "eb-key"
-
-      - name: Use EB environment
-        run: eb use "$EB_ENV_NAME"
-
-      - name: Create Dockerrun.aws.json
+            --region "$AWS_REGION"
+  
+      - name: Set EB environment
         run: |
-          cat > Dockerrun.aws.json <<EOF
-          {
-            "AWSEBDockerrunVersion": "1",
-            "Image": {
-              "Name": "${DOCKERHUB_IMAGE}",
-              "Update": "true"
-            },
-            "Ports": [
-              {
-                "ContainerPort": "8000"
-              }
-            ]
-          }
-          EOF
-
-      - name: Deploy Docker image to EB
+          eb use "$EB_ENV_NAME"
+  
+      - name: Deploy to Elastic Beanstalk
         run: eb deploy "$EB_ENV_NAME"
+
