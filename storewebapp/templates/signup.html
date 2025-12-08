@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+  <div class="card shadow-lg p-4" style="width: 100%; max-width: 400px;">
+    <h3 class="text-center mb-3 text-success">Create an Account</h3>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <div class="d-grid mb-2">
+        <button class="btn btn-success" type="submit">Sign Up</button>
+      </div>
+    </form>
+    <div class="text-center">
+      <p>Already have an account? <a href="{% url 'login' %}" class="text-primary">Login here</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}

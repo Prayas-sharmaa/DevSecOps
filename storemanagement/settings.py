@@ -131,5 +131,5 @@ CSRF_TRUSTED_ORIGINS = [
     'https://5092a8e01f0c47de902f958b2ec1f351.vfs.cloud9.us-east-1.amazonaws.com'
 ]
 
-LOGIN_REDIRECT_URL = '/employees/'
-LOGOUT_REDIRECT_URL = '/accounts/login/'
+LOGIN_URL = 'login'  # redirects unauthorized users to login page
+LOGIN_REDIRECT_URL = 'employee_list'  # after login

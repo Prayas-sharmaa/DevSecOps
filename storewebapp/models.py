@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 class Employee(models.Model):
     name = models.CharField(max_length=100)
-    contact = models.IntegerField()
+    contact = models.CharField(max_length=10)
     role = models.CharField(max_length=10)
     shift = models.CharField(max_length=20)
     

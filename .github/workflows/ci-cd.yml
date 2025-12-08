@@ -134,4 +134,20 @@ jobs:
           version_label: v-${{ github.run_number }}
           deployment_package: deploy.zip
 
+  zap-scan:
+    name: OWASP ZAP Baseline Scan
+    runs-on: ubuntu-latest
+    needs: docker-build
+  
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+  
+      - name: ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.10.0
+        with:
+          target: "http://storewebapp.us-east-1.elasticbeanstalk.com"
+          rules_file_name: ".zap/rules.tsv"
+          cmd_options: "-a"
+
 
