@@ -200,18 +200,28 @@ jobs:
           fail_action: false
   
       - name: Prepare ZAP Output
+        id: prepare
         run: |
           mkdir -p zap-output
-          cp report_html.html zap-output/zap-report.html || true
-          cp report_json.json zap-output/zap-report.json || true
-          cp report_md.md zap-output/zap-report.md || true
+          FILES_EXIST=false
+          for file in report_html.html report_json.json report_md.md; do
+            if [ -f "$file" ]; then
+              cp "$file" zap-output/
+              FILES_EXIST=true
+            else
+              echo "$file not found, skipping..."
+            fi
+          done
+          echo "files_exist=$FILES_EXIST" >> $GITHUB_OUTPUT
   
       - name: Upload ZAP Report Artifact
+        if: steps.prepare.outputs.files_exist == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: zap-scan-report
           path: zap-output/
-          retention-days: 7
+          retention-days: 1
+
 
 
 
