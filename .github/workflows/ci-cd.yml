@@ -1,5 +1,11 @@
 name: DevSecOps CI/CD EB
 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+
 on:
   push:
     branches: [ main ]
@@ -7,6 +13,48 @@ on:
     branches: [ main ]
 
 jobs:
+
+  lint:
+    runs-on: ubuntu-latest
+    name: Lint Code (pylint)
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pylint pylint-django
+
+      - name: Run pylint
+        run: pylint smsapp sms_project --exit-zero
+        
+  security:
+    runs-on: ubuntu-latest
+    needs: lint
+    name: Security Scan (Bandit + Safety)
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install security tools
+        run: |
+          pip install bandit safety
+
+      - name: Bandit (SAST)
+        run: bandit -r smsapp -ll --exit-zero
+
+      - name: Safety (dependency vulnerabilities)
+        run: safety check || true
+  
 
   sonar-cloud-build:
     runs-on: ubuntu-latest
