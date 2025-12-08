@@ -1,21 +1,13 @@
----
-- name: Install Datadog Agent (simple)
-  hosts: ec2
-  become: yes
-
+- hosts: ec2
+  become: true
   vars:
     datadog_api_key: "0cb7742b0779e22c6381b07d9eb0bf8b"
-
   tasks:
+    - name: Gather facts
+      ansible.builtin.setup:
+
     - name: Install Datadog Agent using official script
-      shell: DD_API_KEY="{{ datadog_api_key }}" bash -c "$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh)"
+      shell: |
+        DD_API_KEY="{{ datadog_api_key }}" bash -c "$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh)"
       args:
         warn: false
-
-
-
-    - name: Ensure Datadog Agent is running
-      service:
-        name: datadog-agent
-        state: started
-        enabled: yes
