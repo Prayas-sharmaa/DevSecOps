@@ -8,11 +8,11 @@
 
   tasks:
     - name: Install Datadog Agent using official script
-      shell: |
-        DD_API_KEY={{ datadog_api_key }} \
-        bash -c "$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh)"
+      shell: DD_API_KEY="{{ datadog_api_key }}" bash -c "$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh)"
       args:
-        warn: no
+        warn: false
+
+
 
     - name: Ensure Datadog Agent is running
       service:
